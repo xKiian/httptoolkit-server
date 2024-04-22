@@ -66,6 +66,21 @@ export function exposeRestAPI(
         });
     }));
 
+    // Get the complete details of a sub-part of interceptor state, i.e. even more detailed
+    // metadata about one target of many options available.
+    server.get('/interceptors/:id/metadata/:subId', handleErrors(async (req, res) => {
+        const interceptorId = req.params.id;
+        const subId = req.params.subId;
+
+        res.send({
+            interceptorMetadata: await apiModel.getInterceptorMetadata(
+                interceptorId,
+                'detailed',
+                subId
+            )
+        });
+    }));
+
     server.post('/interceptors/:id/activate/:proxyPort', handleErrors(async (req, res) => {
         const interceptorId = req.params.id;
         const proxyPort = parseInt(req.params.proxyPort, 10);
@@ -79,7 +94,15 @@ export function exposeRestAPI(
         }
 
         const result = await apiModel.activateInterceptor(interceptorId, proxyPort, interceptorOptions);
+
+        // TODO: Can we use 1XX here to send progress updates? Or we poll status? Eh
+        // Could stream NDJSON but not v compatible... Would be super helpful for progress though.
+        // Is it OK if not very compatible given that it's only used by new interceptors w/ corresponding
+        // new UI code? No old UI will ever use this.
+        // TODO: Either way, should add a content type here to control parsing better
+
         res.send({ result });
+        // TODO: Could we send non-200 here for failures safely? 200 + error is gross.
     }));
 
     server.post('/client/send', handleErrors(async (req, res) => {

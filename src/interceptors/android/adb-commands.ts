@@ -67,6 +67,8 @@ const batchCalls = <A extends any[], R>(
 export const getConnectedDevices = batchCalls(async (adbClient: Adb.Client) => {
     try {
         const devices = await (adbClient.listDevices() as Promise<Adb.Device[]>);
+        // TODO: Should we try to use detailed device listing, to get more info, for both Frida & ADB?
+        // TODO: Should we migrate to track-device somehow and make this more directly reactive?
         return devices
             .filter((d) =>
                 d.type !== 'offline' &&
@@ -150,6 +152,12 @@ export async function pushFile(
     });
 }
 
+export async function isProbablyRooted(deviceClient: Adb.DeviceClient) {
+    return run(deviceClient, ['which', 'su'], { timeout: 500 })
+        .then((result) => result.includes('/su'))
+        .catch(() => false);
+}
+
 const runAsRootCommands = [
     // Maybe we're already root?
     (...cmd: string[]) => [...cmd],
@@ -165,6 +173,9 @@ const runAsRootCommands = [
 ];
 
 type RootCmd = (...cmd: string[]) => string[];
+
+// TODO: Goddamn not all devices have whoami! Eughhhhhh. API 22 Android 5.1 doesn't seem to.
+// Does have 'id', which prints "uid=0(root) ..." for root
 
 export async function getRootCommand(adbClient: Adb.DeviceClient): Promise<RootCmd | undefined> {
     const rootTestScriptPath = `${ANDROID_TEMP}/htk-root-test.sh`;

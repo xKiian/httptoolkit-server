@@ -32,6 +32,18 @@
   "repository": "httptoolkit/httptoolkit-server",
   "homepage": "https://github.com/httptoolkit/httptoolkit-server",
   "bugs": "https://github.com/httptoolkit/httptoolkit-server/issues",
+  "externalDependencies - TODO: Better name?": {
+    "docker-socks-tunnel": { "version": "", "hash": "" },
+    "frida-scripts": { "version": "", "hash": "" },
+    "frida-server": {
+      "version": "",
+      "hashes": {
+        "android-arm": ""
+      }
+    },
+    "jvm-http-proxy-agent": { "version": "", "hash": "" },
+    "webextension": { "version": "", "hash": "" }
+  },
   "dependencies": {
     "@devicefarmer/adbkit": "^3.2.5",
     "@graphql-tools/schema": "^8.5.0",
